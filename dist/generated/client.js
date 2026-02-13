@@ -1501,7 +1501,7 @@ const endpoints = makeApi([
         name: "body",
         description: `New media content.`,
         type: "Body",
-        schema: z.instanceof(File)
+        schema: z.union([z.string(), z.instanceof(Buffer)]).optional()
       }
     ],
     response: z.void()
