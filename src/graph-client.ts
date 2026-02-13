@@ -9,7 +9,7 @@ import { getRequestTokens } from './request-context.js';
 interface GraphRequestOptions {
   headers?: Record<string, string>;
   method?: string;
-  body?: string;
+  body?: string | Buffer;
   rawResponse?: boolean;
   includeHeaders?: boolean;
   excludeResponse?: boolean;

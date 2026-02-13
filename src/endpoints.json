@@ -318,7 +318,25 @@
     "pathPattern": "/drives/{drive-id}/items/{driveItem-id}/content",
     "method": "put",
     "toolName": "upload-file-content",
-    "scopes": ["Files.ReadWrite"]
+    "scopes": ["Files.ReadWrite"],
+    "supportsFileUpload": true,
+    "llmTip": "Update existing file content. Use 'filePath' for local upload (auto MIME detection) OR 'body' for direct content. Cannot use both."
+  },
+  {
+    "pathPattern": "/drives/{drive-id}/root:/{path}:/content",
+    "method": "put",
+    "toolName": "upload-new-file",
+    "scopes": ["Files.ReadWrite"],
+    "supportsFileUpload": true,
+    "skipEncoding": ["path"],
+    "llmTip": "Upload new file to path (e.g., '/Documents/report.pdf'). Auto-creates folders. Requires 'filePath' parameter."
+  },
+  {
+    "pathPattern": "/drives/{drive-id}/items/{parentItemId}/children",
+    "method": "post",
+    "toolName": "create-folder",
+    "scopes": ["Files.ReadWrite"],
+    "llmTip": "Create folder in OneDrive. Body: {\"name\": \"folder name\", \"folder\": {}, \"@microsoft.graph.conflictBehavior\": \"fail\"}"
   },
   {
     "pathPattern": "/drives/{drive-id}/items/{driveItem-id}/workbook/worksheets/{workbookWorksheet-id}/charts/add",

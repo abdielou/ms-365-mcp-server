@@ -1,6 +1,8 @@
 # ms-365-mcp-server
 
-[![npm version](https://img.shields.io/npm/v/@softeria/ms-365-mcp-server.svg)](https://www.npmjs.com/package/@softeria/ms-365-mcp-server) [![build status](https://github.com/softeria/ms-365-mcp-server/actions/workflows/build.yml/badge.svg)](https://github.com/softeria/ms-365-mcp-server/actions/workflows/build.yml) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/softeria/ms-365-mcp-server/blob/main/LICENSE)
+> **Note:** This is a fork of [Softeria/ms-365-mcp-server](https://github.com/Softeria/ms-365-mcp-server) with additional features including local file upload support.
+
+[![build status](https://github.com/abdielou/ms-365-mcp-server/actions/workflows/build.yml/badge.svg)](https://github.com/abdielou/ms-365-mcp-server/actions/workflows/build.yml) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/abdielou/ms-365-mcp-server/blob/main/LICENSE)
 
 Microsoft 365 MCP Server
 
@@ -70,7 +72,7 @@ value[1]{id,displayName,mail,jobTitle}:
 Via CLI flag:
 
 ```bash
-npx @softeria/ms-365-mcp-server --toon
+npx github:abdielou/ms-365-mcp-server --toon
 ```
 
 Via Claude Desktop configuration:
@@ -80,7 +82,7 @@ Via Claude Desktop configuration:
   "mcpServers": {
     "ms365": {
       "command": "npx",
-      "args": ["-y", "@softeria/ms-365-mcp-server", "--toon"]
+      "args": ["-y", "github:abdielou/ms-365-mcp-server", "--toon"]
     }
   }
 }
@@ -89,7 +91,7 @@ Via Claude Desktop configuration:
 Via environment variable:
 
 ```bash
-MS365_MCP_OUTPUT_FORMAT=toon npx @softeria/ms-365-mcp-server
+MS365_MCP_OUTPUT_FORMAT=toon npx github:abdielou/ms-365-mcp-server
 ```
 
 ## Supported Services & Tools
@@ -104,9 +106,9 @@ delete-mail-message, create-draft-email, move-mail-message</sub>
 <sub>list-calendars, list-calendar-events, get-calendar-event, get-calendar-view, create-calendar-event,
 update-calendar-event, delete-calendar-event</sub>
 
-**OneDrive Files**  
+**OneDrive Files**
 <sub>list-drives, get-drive-root-item, list-folder-files, download-onedrive-file-content, upload-file-content,
-upload-new-file, delete-onedrive-file</sub>
+upload-new-file, create-folder, delete-onedrive-file</sub>
 
 **Excel Operations**  
 <sub>list-excel-worksheets, get-excel-range, create-excel-chart, format-excel-range, sort-excel-range</sub>
@@ -128,8 +130,81 @@ delete-outlook-contact</sub>
 **User Profile**  
 <sub>get-current-user</sub>
 
-**Search**  
+**Search**
 <sub>search-query</sub>
+
+## Enhanced Features in This Fork
+
+### Local File Upload Support
+
+This fork adds the ability to upload local files directly to OneDrive, which is not possible with the original package due to MCP protocol limitations.
+
+**New Features:**
+
+1. **`upload-file-content`** - Enhanced with `filePath` parameter
+   - Upload local files to existing OneDrive items
+   - Automatic MIME type detection for 30+ file formats
+   - Supports Office docs (.docx, .xlsx, .pptx), PDFs, images, and more
+   - Maintains backward compatibility with `body` parameter
+
+2. **`upload-new-file`** - New tool for path-based uploads
+   - Upload files to specific OneDrive paths (e.g., `/Documents/report.pdf`)
+   - Automatically creates intermediate folders
+   - Perfect for organizing files in nested folder structures
+
+3. **`create-folder`** - New tool for folder management
+   - Create folders in OneDrive with conflict handling
+   - Supports nested folder structures
+
+**Usage Examples:**
+
+```typescript
+// Upload to existing file
+{
+  "tool": "upload-file-content",
+  "parameters": {
+    "drive-id": "b!abc123",
+    "driveItem-id": "xyz789",
+    "filePath": "C:\\Documents\\report.docx"
+  }
+}
+
+// Upload to new location with auto-folder creation
+{
+  "tool": "upload-new-file",
+  "parameters": {
+    "drive-id": "b!abc123",
+    "path": "/Documents/Reports/Q4/report.pdf",
+    "filePath": "C:\\local\\report.pdf"
+  }
+}
+
+// Create a folder
+{
+  "tool": "create-folder",
+  "parameters": {
+    "drive-id": "b!abc123",
+    "parentItemId": "folder123",
+    "body": {
+      "name": "Q4 Reports",
+      "folder": {},
+      "@microsoft.graph.conflictBehavior": "fail"
+    }
+  }
+}
+```
+
+**Supported File Types:**
+- Microsoft Office: .docx, .xlsx, .pptx, .doc, .xls, .ppt
+- Documents: .pdf, .txt, .csv, .json, .xml
+- Images: .jpg, .jpeg, .png, .gif, .bmp, .svg
+- Media: .mp3, .wav, .mp4, .avi, .mov
+- Archives: .zip, .rar, .7z, .tar, .gz
+- And more...
+
+**Size Limits:**
+- Maximum file size: 4GB (Microsoft Graph API limit)
+- Files are validated before upload to prevent errors
 
 ### Organization Account Tools (Requires --org-mode flag)
 
@@ -160,7 +235,7 @@ To access work/school features (Teams, SharePoint, etc.), enable organization mo
   "mcpServers": {
     "ms365": {
       "command": "npx",
-      "args": ["-y", "@softeria/ms-365-mcp-server", "--org-mode"]
+      "args": ["-y", "github:abdielou/ms-365-mcp-server", "--org-mode"]
     }
   }
 }
@@ -206,7 +281,7 @@ To add this MCP server to Claude Desktop, edit the config file under Settings > 
   "mcpServers": {
     "ms365": {
       "command": "npx",
-      "args": ["-y", "@softeria/ms-365-mcp-server"]
+      "args": ["-y", "github:abdielou/ms-365-mcp-server"]
     }
   }
 }
@@ -219,7 +294,7 @@ To add this MCP server to Claude Desktop, edit the config file under Settings > 
   "mcpServers": {
     "ms365": {
       "command": "npx",
-      "args": ["-y", "@softeria/ms-365-mcp-server", "--org-mode"]
+      "args": ["-y", "github:abdielou/ms-365-mcp-server", "--org-mode"]
     }
   }
 }
@@ -232,7 +307,7 @@ To add this MCP server to Claude Desktop, edit the config file under Settings > 
   "mcpServers": {
     "ms365-china": {
       "command": "npx",
-      "args": ["-y", "@softeria/ms-365-mcp-server", "--org-mode", "--cloud", "china"]
+      "args": ["-y", "github:abdielou/ms-365-mcp-server", "--org-mode", "--cloud", "china"]
     }
   }
 }
@@ -243,27 +318,27 @@ To add this MCP server to Claude Desktop, edit the config file under Settings > 
 #### Personal Account (MSA)
 
 ```bash
-claude mcp add ms365 -- npx -y @softeria/ms-365-mcp-server
+claude mcp add ms365 -- npx -y github:abdielou/ms-365-mcp-server
 ```
 
 #### Work/School Account (Global)
 
 ```bash
 # macOS/Linux
-claude mcp add ms365 -- npx -y @softeria/ms-365-mcp-server --org-mode
+claude mcp add ms365 -- npx -y github:abdielou/ms-365-mcp-server --org-mode
 
 # Windows (use cmd /c wrapper)
-claude mcp add ms365 -s user -- cmd /c "npx -y @softeria/ms-365-mcp-server --org-mode"
+claude mcp add ms365 -s user -- cmd /c "npx -y github:abdielou/ms-365-mcp-server --org-mode"
 ```
 
 #### Work/School Account (China 21Vianet)
 
 ```bash
 # macOS/Linux
-claude mcp add ms365-china -- npx -y @softeria/ms-365-mcp-server --org-mode --cloud china
+claude mcp add ms365-china -- npx -y github:abdielou/ms-365-mcp-server --org-mode --cloud china
 
 # Windows (use cmd /c wrapper)
-claude mcp add ms365-china -s user -- cmd /c "npx -y @softeria/ms-365-mcp-server --org-mode --cloud china"
+claude mcp add ms365-china -s user -- cmd /c "npx -y github:abdielou/ms-365-mcp-server --org-mode --cloud china"
 ```
 
 For other interfaces that support MCPs, please refer to their respective documentation for the correct
@@ -276,7 +351,7 @@ Open WebUI supports MCP servers via HTTP transport with OAuth 2.1.
 1. Start the server with HTTP mode and dynamic registration enabled:
 
    ```bash
-   npx @softeria/ms-365-mcp-server --http --enable-dynamic-registration
+   npx github:abdielou/ms-365-mcp-server --http --enable-dynamic-registration
    ```
 
 2. In Open WebUI, go to **Admin Settings → Tools** (`/admin/settings/tools`) → **Add Connection**:
@@ -296,7 +371,7 @@ docker run -d -p 8080:8080 \
   -e OPENAI_API_KEY \
   ghcr.io/open-webui/open-webui:main
 
-npx @softeria/ms-365-mcp-server --http --enable-dynamic-registration
+npx github:abdielou/ms-365-mcp-server --http --enable-dynamic-registration
 ```
 
 Then add connection with URL `http://localhost:3000/mcp` and ID `ms-365`.
@@ -343,7 +418,7 @@ For interactive authentication via device code:
   - Use `verify-login` tool to confirm
 - **CLI login**:
   ```bash
-  npx @softeria/ms-365-mcp-server --login
+  npx github:abdielou/ms-365-mcp-server --login
   ```
   Follow the URL and code prompt in the terminal.
 
@@ -354,7 +429,7 @@ Tokens are cached securely in your OS credential store (fallback to file).
 When running with `--http`, the server **requires** OAuth authentication:
 
 ```bash
-npx @softeria/ms-365-mcp-server --http 3000
+npx github:abdielou/ms-365-mcp-server --http 3000
 ```
 
 This mode:
@@ -417,7 +492,7 @@ If you are running ms-365-mcp-server as part of a larger system that manages Mic
 provide an access token directly to this MCP server:
 
 ```bash
-MS365_MCP_OAUTH_TOKEN=your_oauth_token npx @softeria/ms-365-mcp-server
+MS365_MCP_OAUTH_TOKEN=your_oauth_token npx github:abdielou/ms-365-mcp-server
 ```
 
 This method:
@@ -436,8 +511,8 @@ This method:
 To reduce initial connection overhead, use preset tool categories instead of loading all 90+ tools:
 
 ```bash
-npx @softeria/ms-365-mcp-server --preset mail
-npx @softeria/ms-365-mcp-server --list-presets  # See all available presets
+npx github:abdielou/ms-365-mcp-server --preset mail
+npx github:abdielou/ms-365-mcp-server --list-presets  # See all available presets
 ```
 
 Available presets: `mail`, `calendar`, `files`, `personal`, `work`, `excel`, `contacts`, `tasks`, `onenote`, `search`, `users`, `all`
@@ -552,7 +627,7 @@ For production deployments, you can store secrets in Azure Key Vault instead of 
 
 4. **Configure the server**:
    ```bash
-   MS365_MCP_KEYVAULT_URL=https://your-keyvault-name.vault.azure.net npx @softeria/ms-365-mcp-server
+   MS365_MCP_KEYVAULT_URL=https://your-keyvault-name.vault.azure.net npx github:abdielou/ms-365-mcp-server
    ```
 
 ### Secret Name Mapping
@@ -597,13 +672,15 @@ npm run generate
 
 ## Support
 
-If you're having problems or need help:
+If you're having problems or need help with this fork:
 
-- Create an [issue](https://github.com/softeria/ms-365-mcp-server/issues)
-- Start a [discussion](https://github.com/softeria/ms-365-mcp-server/discussions)
-- Email: eirikb@eirikb.no
-- Discord: https://discord.gg/WvGVNScrAZ or @eirikb
+- Create an [issue](https://github.com/abdielou/ms-365-mcp-server/issues)
+- Start a [discussion](https://github.com/abdielou/ms-365-mcp-server/discussions)
+
+For issues related to the original package, please refer to the [upstream repository](https://github.com/Softeria/ms-365-mcp-server).
 
 ## License
 
-MIT © 2026 Softeria
+MIT
+
+This fork maintains the MIT license from the original [Softeria/ms-365-mcp-server](https://github.com/Softeria/ms-365-mcp-server).

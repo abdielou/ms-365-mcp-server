@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { readFileForUpload, validateFilePath } from './lib/file-utils.js';
 import { TOOL_CATEGORIES } from './tool-categories.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +21,7 @@ interface EndpointConfig {
   returnDownloadUrl?: boolean;
   supportsTimezone?: boolean;
   supportsExpandExtendedProperties?: boolean;
+  supportsFileUpload?: boolean;
   llmTip?: string;
   skipEncoding?: string[]; // Parameter names that should NOT be URL-encoded (for function-style API calls)
   contentType?: string;
@@ -187,6 +189,63 @@ async function executeGraphTool(
       }
     }
 
+    // Handle file upload scenarios
+    if (config?.supportsFileUpload) {
+      const hasFilePath = 'filePath' in params && params.filePath !== undefined && params.filePath !== null;
+      const hasBody = 'body' in params && params.body !== undefined && params.body !== null;
+
+      // Validate mutual exclusivity
+      if (hasFilePath && hasBody) {
+        const errorMsg =
+          'Cannot use both "filePath" and "body" parameters. Use "filePath" for local file upload or "body" for direct content.';
+        logger.error(errorMsg);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ error: errorMsg }),
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      // Handle local file upload
+      if (hasFilePath) {
+        logger.info(`Processing file upload from local path: ${params.filePath}`);
+
+        try {
+          const fileData = readFileForUpload(params.filePath as string);
+
+          // Override body with file content (as Buffer)
+          body = fileData.content;
+
+          // Override Content-Type header with detected MIME type
+          headers['Content-Type'] = fileData.mimeType;
+
+          logger.info(
+            `File upload prepared: ${fileData.fileName} (${fileData.size} bytes, ${fileData.mimeType})`
+          );
+
+          // Remove filePath from params to prevent it from being processed as API parameter
+          delete params.filePath;
+        } catch (error) {
+          logger.error(`File upload preparation failed: ${(error as Error).message}`);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  error: `File upload failed: ${(error as Error).message}`,
+                }),
+              },
+            ],
+            isError: true,
+          };
+        }
+      }
+    }
+
     // Handle timezone parameter for calendar endpoints
     if (config?.supportsTimezone && params.timezone) {
       headers['Prefer'] = `outlook.timezone="${params.timezone}"`;
@@ -219,7 +278,7 @@ async function executeGraphTool(
     const options: {
       method: string;
       headers: Record<string, string>;
-      body?: string;
+      body?: string | Buffer;
       rawResponse?: boolean;
       includeHeaders?: boolean;
       excludeResponse?: boolean;
@@ -230,7 +289,13 @@ async function executeGraphTool(
     };
 
     if (options.method !== 'GET' && body) {
-      if (config?.contentType === 'text/html') {
+      // Handle binary content (Buffer)
+      if (Buffer.isBuffer(body)) {
+        options.body = body;
+        logger.info(`Sending binary content (${body.length} bytes)`);
+      }
+      // Handle HTML content
+      else if (config?.contentType === 'text/html') {
         if (typeof body === 'string') {
           options.body = body;
         } else if (typeof body === 'object' && 'content' in body) {
@@ -238,7 +303,9 @@ async function executeGraphTool(
         } else {
           options.body = String(body);
         }
-      } else {
+      }
+      // Handle JSON content
+      else {
         options.body = typeof body === 'string' ? body : JSON.stringify(body);
       }
     }
@@ -451,6 +518,19 @@ export function registerGraphTools(
         .boolean()
         .describe(
           'When true, expands singleValueExtendedProperties on each event. Use this to retrieve custom extended properties (e.g., sync metadata) stored on calendar events.'
+        )
+        .optional();
+    }
+
+    // Add filePath parameter for file upload endpoints
+    if (endpointConfig?.supportsFileUpload) {
+      paramSchema['filePath'] = z
+        .string()
+        .refine(validateFilePath, {
+          message: 'filePath must be a non-empty string',
+        })
+        .describe(
+          'Local file path to upload. File content and MIME type are automatically detected. Cannot be used with "body" parameter.'
         )
         .optional();
     }
