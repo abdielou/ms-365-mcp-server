@@ -25,6 +25,7 @@ interface EndpointConfig {
   llmTip?: string;
   skipEncoding?: string[]; // Parameter names that should NOT be URL-encoded (for function-style API calls)
   contentType?: string;
+  defaultTop?: number; // Default $top page size for list endpoints (forces pagination)
 }
 
 const endpointsData = JSON.parse(
@@ -266,6 +267,12 @@ async function executeGraphTool(
     if (config?.contentType) {
       headers['Content-Type'] = config.contentType;
       logger.info(`Setting custom Content-Type: ${config.contentType}`);
+    }
+
+    // Force pagination: inject default $top if endpoint has defaultTop and caller didn't specify
+    if (config?.defaultTop && !queryParams['$top']) {
+      queryParams['$top'] = `${config.defaultTop}`;
+      logger.info(`Forcing pagination: injected $top=${config.defaultTop} for ${tool.alias}`);
     }
 
     if (Object.keys(queryParams).length > 0) {

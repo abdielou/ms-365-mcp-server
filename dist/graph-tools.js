@@ -148,6 +148,10 @@ async function executeGraphTool(tool, config, graphClient, params) {
       headers["Content-Type"] = config.contentType;
       logger.info(`Setting custom Content-Type: ${config.contentType}`);
     }
+    if (config?.defaultTop && !queryParams["$top"]) {
+      queryParams["$top"] = `${config.defaultTop}`;
+      logger.info(`Forcing pagination: injected $top=${config.defaultTop} for ${tool.alias}`);
+    }
     if (Object.keys(queryParams).length > 0) {
       const queryString = Object.entries(queryParams).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
       path2 = `${path2}${path2.includes("?") ? "&" : "?"}${queryString}`;

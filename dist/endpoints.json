@@ -5,7 +5,9 @@
     "toolName": "list-drives",
     "scopes": [
       "Files.Read"
-    ]
+    ],
+    "defaultTop": 10,
+    "llmTip": "Returns paginated results. Use 'top' to control page size (default: 10) and 'skip' to paginate. Use 'fetchAllPages: true' to retrieve everything at once."
   },
   {
     "pathPattern": "/drives/{drive-id}/root",
@@ -29,7 +31,9 @@
     "toolName": "list-folder-files",
     "scopes": [
       "Files.Read"
-    ]
+    ],
+    "defaultTop": 20,
+    "llmTip": "Returns paginated results. Use 'top' to control page size (default: 20) and 'skip' to paginate. Use 'fetchAllPages: true' to retrieve everything at once."
   },
   {
     "pathPattern": "/drives/{drive-id}/items/{driveItem-id}/content",
@@ -113,7 +117,9 @@
     "isExcelOp": true,
     "scopes": [
       "Files.Read"
-    ]
+    ],
+    "defaultTop": 20,
+    "llmTip": "Returns paginated results. Use 'top' to control page size (default: 20) and 'skip' to paginate. Use 'fetchAllPages: true' to retrieve everything at once."
   },
   {
     "pathPattern": "/sites/{site-id}/drives",
@@ -121,7 +127,9 @@
     "toolName": "list-sharepoint-site-drives",
     "workScopes": [
       "Sites.Read.All"
-    ]
+    ],
+    "defaultTop": 10,
+    "llmTip": "Returns paginated results. Use 'top' to control page size (default: 10) and 'skip' to paginate. Use 'fetchAllPages: true' to retrieve everything at once."
   },
   {
     "pathPattern": "/sites/{site-id}/drives/{drive-id}",
