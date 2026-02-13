@@ -10,6 +10,7 @@
   "scripts": {
     "generate": "node bin/generate-graph-client.mjs",
     "build": "tsup",
+    "dist": "npm run generate && npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "tsx src/index.ts",
@@ -20,7 +21,7 @@
     "lint:fix": "eslint . --fix",
     "verify": "npm run generate && npm run lint && npm run format:check && npm run build && npm run test",
     "inspector": "npx @modelcontextprotocol/inspector tsx src/index.ts",
-    "prepare": "npm run build"
+    "prepare": "npm run dist"
   },
   "keywords": [
     "microsoft",

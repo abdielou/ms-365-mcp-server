@@ -400,7 +400,7 @@ Or configure Claude Desktop manually:
 }
 ```
 
-> **Note**: Run `npm run build` after code changes to update the `dist/` folder.
+> **Note**: Run `npm run dist` after code changes to regenerate and build the `dist/` folder.
 
 ### Authentication
 
@@ -669,6 +669,34 @@ After cloning the repository, you may need to generate the client code from the 
 ```bash
 npm run generate
 ```
+
+### Preparing Distribution Builds
+
+**Important**: This repository does not publish to npm. Instead, users run the server directly from GitHub using `npx github:abdielou/ms-365-mcp-server`.
+
+For this to work, the `dist/` folder **must be committed** to the repository. Follow these steps when making changes:
+
+1. **Make your code changes** to the source files
+2. **Generate and build** the distribution:
+   ```bash
+   npm run dist
+   ```
+   This runs both `npm run generate` and `npm run build` to create the `dist/` folder with all compiled files.
+
+3. **Commit both source and dist**:
+   ```bash
+   git add src/ dist/
+   git commit -m "feat: your changes"
+   ```
+
+4. **Push to GitHub**:
+   ```bash
+   git push
+   ```
+
+The `prepare` script automatically runs `npm run dist` when someone installs from GitHub, but the pre-built `dist/` folder ensures the server works immediately without requiring a build step.
+
+**Note**: The `dist/` folder is tracked in git (not in `.gitignore`) to support GitHub npx usage.
 
 ## Support
 
