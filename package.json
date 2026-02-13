@@ -2,7 +2,7 @@
   "name": "@abdielou/ms-365-mcp-server",
   "files": ["dist", "bin"],
   "version": "0.0.0-development",
-  "description": " A Model Context Protocol (MCP) server for interacting with Microsoft 365 and Office services through the Graph API",
+  "description": "A Model Context Protocol (MCP) server focused on OneDrive file storage and Excel operations through the Microsoft Graph API",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

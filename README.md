@@ -4,10 +4,11 @@
 
 [![build status](https://github.com/abdielou/ms-365-mcp-server/actions/workflows/build.yml/badge.svg)](https://github.com/abdielou/ms-365-mcp-server/actions/workflows/build.yml) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/abdielou/ms-365-mcp-server/blob/main/LICENSE)
 
-Microsoft 365 MCP Server
+Microsoft 365 MCP Server (OneDrive Edition)
 
-A Model Context Protocol (MCP) server for interacting with Microsoft 365 and Microsoft Office services through the Graph
-API.
+A Model Context Protocol (MCP) server focused on OneDrive file storage and Excel operations through the Microsoft Graph API.
+
+**Note:** This is a streamlined version containing only OneDrive and Excel tools (15 tools total). For the full Microsoft 365 feature set, see the [upstream repository](https://github.com/Softeria/ms-365-mcp-server).
 
 ## Supported Clouds
 
@@ -26,7 +27,10 @@ This server supports multiple Microsoft cloud environments:
 ## Features
 
 - Authentication via Microsoft Authentication Library (MSAL)
-- Comprehensive Microsoft 365 service integration
+- OneDrive file storage and management
+- Excel file operations (read/write worksheets, format cells, create charts)
+- SharePoint drive access (with --org-mode)
+- Local file upload support with automatic MIME type detection
 - Read-only mode support for safe operations
 - Tool filtering for granular access control
 
@@ -96,42 +100,19 @@ MS365_MCP_OUTPUT_FORMAT=toon npx github:abdielou/ms-365-mcp-server
 
 ## Supported Services & Tools
 
-### Personal Account Tools (Available by default)
+This server has been configured to provide **OneDrive file storage tools only** (15 tools total).
 
-**Email (Outlook)**  
-<sub>list-mail-messages, list-mail-folders, list-mail-folder-messages, get-mail-message, send-mail,
-delete-mail-message, create-draft-email, move-mail-message</sub>
+### OneDrive File Operations (Personal & Work Accounts)
 
-**Calendar**  
-<sub>list-calendars, list-calendar-events, get-calendar-event, get-calendar-view, create-calendar-event,
-update-calendar-event, delete-calendar-event</sub>
+**Core File Management**
+<sub>list-drives, get-drive-root-item, get-root-folder, list-folder-files, download-onedrive-file-content,
+upload-file-content, create-folder, delete-onedrive-file</sub>
 
-**OneDrive Files**
-<sub>list-drives, get-drive-root-item, list-folder-files, download-onedrive-file-content, upload-file-content,
-upload-new-file, create-folder, delete-onedrive-file</sub>
-
-**Excel Operations**  
+**Excel File Operations**
 <sub>list-excel-worksheets, get-excel-range, create-excel-chart, format-excel-range, sort-excel-range</sub>
 
-**OneNote**  
-<sub>list-onenote-notebooks, list-onenote-notebook-sections, list-onenote-section-pages, get-onenote-page-content,
-create-onenote-page</sub>
-
-**To Do Tasks**  
-<sub>list-todo-task-lists, list-todo-tasks, get-todo-task, create-todo-task, update-todo-task, delete-todo-task</sub>
-
-**Planner**  
-<sub>list-planner-tasks, get-planner-plan, list-plan-tasks, get-planner-task, create-planner-task</sub>
-
-**Contacts**  
-<sub>list-outlook-contacts, get-outlook-contact, create-outlook-contact, update-outlook-contact,
-delete-outlook-contact</sub>
-
-**User Profile**  
-<sub>get-current-user</sub>
-
-**Search**
-<sub>search-query</sub>
+**SharePoint Drives** (requires --org-mode)
+<sub>list-sharepoint-site-drives, get-sharepoint-site-drive-by-id</sub>
 
 ## Enhanced Features in This Fork
 
@@ -206,29 +187,10 @@ This fork adds the ability to upload local files directly to OneDrive, which is 
 - Maximum file size: 4GB (Microsoft Graph API limit)
 - Files are validated before upload to prevent errors
 
-### Organization Account Tools (Requires --org-mode flag)
-
-**Teams & Chats**  
-<sub>list-chats, get-chat, list-chat-messages, get-chat-message, send-chat-message, list-chat-message-replies,
-reply-to-chat-message, list-joined-teams, get-team, list-team-channels, get-team-channel, list-channel-messages,
-get-channel-message, send-channel-message, list-team-members</sub>
-
-**SharePoint Sites**  
-<sub>search-sharepoint-sites, get-sharepoint-site, get-sharepoint-site-by-path, list-sharepoint-site-drives,
-get-sharepoint-site-drive-by-id, list-sharepoint-site-items, get-sharepoint-site-item, list-sharepoint-site-lists,
-get-sharepoint-site-list, list-sharepoint-site-list-items, get-sharepoint-site-list-item,
-get-sharepoint-sites-delta</sub>
-
-**Shared Mailboxes**  
-<sub>list-shared-mailbox-messages, list-shared-mailbox-folder-messages, get-shared-mailbox-message,
-send-shared-mailbox-mail</sub>
-
-**User Management**  
-<sub>list-users</sub>
 
 ## Organization/Work Mode
 
-To access work/school features (Teams, SharePoint, etc.), enable organization mode using any of these flags:
+To access SharePoint drive tools, enable organization mode:
 
 ```json
 {
@@ -241,32 +203,33 @@ To access work/school features (Teams, SharePoint, etc.), enable organization mo
 }
 ```
 
-Organization mode must be enabled from the start to access work account features. Without this flag, only personal
-account features (email, calendar, OneDrive, etc.) are available.
-
-## Shared Mailbox Access
-
-To access shared mailboxes, you need:
-
-1. **Organization mode**: Shared mailbox tools require `--org-mode` flag (work/school accounts only)
-2. **Delegated permissions**: `Mail.Read.Shared` or `Mail.Send.Shared` scopes
-3. **Exchange permissions**: The signed-in user must have been granted access to the shared mailbox
-4. **Usage**: Use the shared mailbox's email address as the `user-id` parameter in the shared mailbox tools
-
-**Finding shared mailboxes**: Use the `list-users` tool to discover available users and shared mailboxes in your
-organization.
-
-Example: `list-shared-mailbox-messages` with `user-id` set to `shared-mailbox@company.com`
+Organization mode enables SharePoint drive access. Without this flag, only personal OneDrive features are available.
 
 ## Quick Start Example
+
+This OneDrive-focused server provides 15 specialized tools for file management and Excel operations.
 
 Test login in Claude Desktop:
 
 ![Login example](https://github.com/user-attachments/assets/27f57f0e-57b8-4366-a8d1-c0bdab79900c)
 
-## Examples
+## Available Operations
 
-![Image](https://github.com/user-attachments/assets/ed275100-72e8-4924-bcf2-cd8e1b4c6f3a)
+**File Management:**
+- List and navigate drives and folders
+- Upload, download, and delete files
+- Create folder structures
+- Automatic MIME type detection for uploads
+
+**Excel Operations:**
+- Read and manipulate worksheet data
+- Format cell ranges
+- Create charts
+- Sort data ranges
+
+**SharePoint Integration (--org-mode):**
+- Access SharePoint site drives
+- Manage files in SharePoint document libraries
 
 ## Integration
 
@@ -287,7 +250,7 @@ To add this MCP server to Claude Desktop, edit the config file under Settings > 
 }
 ```
 
-#### Work/School Account (Global)
+#### Work/School Account with SharePoint (Global)
 
 ```json
 {
@@ -300,7 +263,7 @@ To add this MCP server to Claude Desktop, edit the config file under Settings > 
 }
 ```
 
-#### Work/School Account (China 21Vianet)
+#### Work/School Account with SharePoint (China 21Vianet)
 
 ```json
 {
@@ -321,7 +284,7 @@ To add this MCP server to Claude Desktop, edit the config file under Settings > 
 claude mcp add ms365 -- npx -y github:abdielou/ms-365-mcp-server
 ```
 
-#### Work/School Account (Global)
+#### Work/School Account with SharePoint (Global)
 
 ```bash
 # macOS/Linux
@@ -331,7 +294,7 @@ claude mcp add ms365 -- npx -y github:abdielou/ms-365-mcp-server --org-mode
 claude mcp add ms365 -s user -- cmd /c "npx -y github:abdielou/ms-365-mcp-server --org-mode"
 ```
 
-#### Work/School Account (China 21Vianet)
+#### Work/School Account with SharePoint (China 21Vianet)
 
 ```bash
 # macOS/Linux
@@ -508,16 +471,15 @@ This method:
 
 ## Tool Presets
 
-To reduce initial connection overhead, use preset tool categories instead of loading all 90+ tools:
+This server includes only OneDrive-related tools (15 tools total). Tool presets are available but less necessary with the reduced tool count:
 
 ```bash
-npx github:abdielou/ms-365-mcp-server --preset mail
+npx github:abdielou/ms-365-mcp-server --preset files
+npx github:abdielou/ms-365-mcp-server --preset excel
 npx github:abdielou/ms-365-mcp-server --list-presets  # See all available presets
 ```
 
-Available presets: `mail`, `calendar`, `files`, `personal`, `work`, `excel`, `contacts`, `tasks`, `onenote`, `search`, `users`, `all`
-
-**Experimental:** `--discovery` starts with only 2 tools (`search-tools`, `execute-tool`) for minimal token usage.
+Relevant presets: `files`, `excel`, `all`
 
 ## CLI Options
 
@@ -527,7 +489,7 @@ The following options can be used when running ms-365-mcp-server directly from t
 --login           Login using device code flow
 --logout          Log out and clear saved credentials
 --verify-login    Verify login without starting the server
---org-mode        Enable organization/work mode from start (includes Teams, SharePoint, etc.)
+--org-mode        Enable organization/work mode from start (enables SharePoint drive access)
 --work-mode       Alias for --org-mode
 --force-work-scopes Backwards compatibility alias for --org-mode (deprecated)
 --cloud <type>    Microsoft cloud environment: global (default) or china (21Vianet)
