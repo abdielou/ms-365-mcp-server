@@ -332,7 +332,7 @@
     "llmTip": "Upload new file to path (e.g., '/Documents/report.pdf'). Auto-creates folders. Requires 'filePath' parameter."
   },
   {
-    "pathPattern": "/drives/{drive-id}/items/{parentItemId}/children",
+    "pathPattern": "/drives/{drive-id}/items/{driveItem-id}/children",
     "method": "post",
     "toolName": "create-folder",
     "scopes": ["Files.ReadWrite"],
